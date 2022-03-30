@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using LojaVirtual.Database;
+using LojaVirtual.Database.Interfaces;
 using LojaVirtual.Libraries.Email;
 using LojaVirtual.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -10,9 +12,32 @@ namespace LojaVirtual.Controllers
 {
     public class HomeController : Controller
     {
+        private LojaVirtualContext _newsLetterEmail;
+        public HomeController(LojaVirtualContext newsLetter)
+        {
+            _newsLetterEmail = newsLetter;
+        }
+
+        [HttpGet]
         public IActionResult Index()
         {
+
             return View();
+        }
+        [HttpPost]
+        public IActionResult Index([FromForm] NewsletterEmail newsletter)
+        {
+            // Add to the database
+            if (ModelState.IsValid)
+            {
+                _newsLetterEmail.NewsletterEmails.Add(newsletter);
+                TempData["MSG_S"] = "E-mail cadastrado, agora você vai receber promoções especiais no seu e-mail";
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                return View();
+            }
         }
         public IActionResult Contato()
         {
