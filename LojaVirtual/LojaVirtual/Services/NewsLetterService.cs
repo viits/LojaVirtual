@@ -1,10 +1,12 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using LojaVirtual.Database.Interfaces;
 using LojaVirtual.Models;
 
 namespace LojaVirtual.Database.Services
 {
-    public class NewsLetterService : INewsLetter
+    public class NewsLetterService : INewsLetterService
     {
         private LojaVirtualContext _lojaVirtualContextData;
 
@@ -17,6 +19,11 @@ namespace LojaVirtual.Database.Services
         {
             _lojaVirtualContextData.NewsletterEmails.Add(news);
             _lojaVirtualContextData.SaveChanges();
+        }
+        public IEnumerable<NewsletterEmail> obterTodos()
+        {
+            var news = _lojaVirtualContextData.NewsletterEmails.ToList();
+            return news;
         }
     }
 }

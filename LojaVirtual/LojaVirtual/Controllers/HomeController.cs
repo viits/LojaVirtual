@@ -12,10 +12,12 @@ namespace LojaVirtual.Controllers
 {
     public class HomeController : Controller
     {
-        private LojaVirtualContext _newsLetterEmail;
-        public HomeController(LojaVirtualContext newsLetter)
+        private readonly INewsLetterService _newsLetterEmail;
+        private readonly IClienteService _clienteService;
+        public HomeController(INewsLetterService newsLetter, IClienteService clienteService)
         {
             _newsLetterEmail = newsLetter;
+            _clienteService = clienteService;
         }
 
         [HttpGet]
@@ -30,7 +32,7 @@ namespace LojaVirtual.Controllers
             // Add to the database
             if (ModelState.IsValid)
             {
-                _newsLetterEmail.NewsletterEmails.Add(newsletter);
+                _newsLetterEmail.cadastrar(newsletter);
                 TempData["MSG_S"] = "E-mail cadastrado, agora você vai receber promoções especiais no seu e-mail";
                 return RedirectToAction("Index");
             }
@@ -87,9 +89,22 @@ namespace LojaVirtual.Controllers
         {
             return View();
         }
+        [HttpGet]
         public IActionResult CadastroCliente()
         {
             return View();
+        }
+        [HttpPost]
+        public IActionResult CadastroCliente([FromForm] Cliente cliente)
+        {
+            if (ModelState.IsValid)
+            {
+                _clienteService.cadastrar(cliente);
+                TempData["MSG_S"] = "Cadastro realizado com sucesso!";
+                return RedirectToAction(nameof(CadastroCliente));
+            }
+            return View();
+
         }
         public IActionResult CarrinhoCompras()
         {
