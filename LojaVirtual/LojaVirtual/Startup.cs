@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer;
 using LojaVirtual.Database.Services;
 using LojaVirtual.Database.Interfaces;
+using LojaVirtual.Libraries.Sessao;
+using LojaVirtual.Libraries.Login;
 
 namespace LojaVirtual
 {
@@ -33,6 +35,16 @@ namespace LojaVirtual
             services.AddDbContext<LojaVirtualContext>(options => options.UseSqlServer(connection));
             services.AddTransient<INewsLetterService, NewsLetterService>();
             services.AddTransient<IClienteService, ClienteService>();
+            services.AddHttpContextAccessor();
+
+            services.AddMemoryCache();
+            services.AddSession(option =>
+            {
+
+            });
+            services.AddTransient<Sessao>();
+            services.AddTransient<LoginCliente>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,7 +63,8 @@ namespace LojaVirtual
             app.UseHttpsRedirection();
             app.UseDefaultFiles();
             app.UseStaticFiles();
-
+            app.UseCookiePolicy();
+            app.UseSession();
             app.UseRouting();
 
             app.UseAuthorization();

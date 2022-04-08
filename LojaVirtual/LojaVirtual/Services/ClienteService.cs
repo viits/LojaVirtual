@@ -54,7 +54,7 @@ namespace LojaVirtual.Database.Services
 
         public Cliente login(string email, string senha)
         {
-            var cliente = _repository.Clientes.Where(m => m.Email == email && m.Senha == senha).First();
+            Cliente cliente = _repository.Clientes.Where(m => m.Email == email && m.Senha == senha).FirstOrDefault();
             return cliente;
         }
 

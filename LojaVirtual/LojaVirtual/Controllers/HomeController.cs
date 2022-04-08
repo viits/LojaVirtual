@@ -5,7 +5,9 @@ using System.Text;
 using LojaVirtual.Database;
 using LojaVirtual.Database.Interfaces;
 using LojaVirtual.Libraries.Email;
+using LojaVirtual.Libraries.Login;
 using LojaVirtual.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LojaVirtual.Controllers
@@ -14,10 +16,13 @@ namespace LojaVirtual.Controllers
     {
         private readonly INewsLetterService _newsLetterEmail;
         private readonly IClienteService _clienteService;
-        public HomeController(INewsLetterService newsLetter, IClienteService clienteService)
+
+        private readonly LoginCliente _loginCliente;
+        public HomeController(INewsLetterService newsLetter, IClienteService clienteService, LoginCliente loginCliente)
         {
             _newsLetterEmail = newsLetter;
             _clienteService = clienteService;
+            _loginCliente = loginCliente;
         }
 
         [HttpGet]
@@ -85,10 +90,43 @@ namespace LojaVirtual.Controllers
 
             // return new ContentResult() { Content = string.Format("Dados Recebidos com Sucesso! Nome: {0} <br/> Email: {1} <br/> Texto: {2}", contato.Nome, contato.Email, contato.Texto), ContentType = "text/html" };
         }
+        [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
+        [HttpPost]
+        public IActionResult Login([FromForm] Cliente cliente)
+        {
+
+            Cliente clienteDb = _clienteService.login(cliente.Email, cliente.Senha);
+            if (clienteDb != null)
+            {
+                _loginCliente.SalvarCliente(clienteDb);
+                return new RedirectResult(Url.Action(nameof(Painel)));
+            }
+            else
+            {
+                ViewData["MSG_E"] = "Usuário ou senha inválidas";
+                return View();
+            }
+
+        }
+
+        [HttpGet]
+        public IActionResult Painel()
+        {
+            Cliente cliente = _loginCliente.ObterCliente();
+            if (cliente != null)
+            {
+                return new ContentResult() { Content = "Acesso Concedido: " + cliente };
+            }
+            else
+            {
+                return new ContentResult() { Content = "Acesso Negado : " };
+            }
+        }
+
         [HttpGet]
         public IActionResult CadastroCliente()
         {
